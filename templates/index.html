@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Welcome</title>
+</head>
+
+<body>
+    
+    {% if username %}
+        Welcome {{username}}!
+            <p>
+            <ul>
+                <li>
+                    <a href="/logout">Logout</a>
+                </li>
+                <li>
+                    <a href="/newpost">Create a New Post</a>
+                </li>
+
+            </ul>
+    {% else %}
+        Welcome!
+            <p>
+            <ul>
+                <li>
+                    <a href="/login">Login</a>
+                </li>
+                <li>
+                    <a href="/signup">Create a New Account</a>
+                </li>
+
+            </ul>
+    {% endif %}
+</body>
+
+</html>
