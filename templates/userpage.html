@@ -3,18 +3,22 @@
 <html>
 
 <head>
-    <title>Welcome</title>
+    {%if userExists == True %}
+    <title>posts by {{username}}</title>
+    {% else %}
+    <title>There's nothing here...</title>
+    {% endif %}
 </head>
 
 <body>
     
-    {% if posts %}
+    {% if userExists == False %}
+        That user doesn't exist.
+    {% elif posts != None %}
         {{username}}'s most recent posts:
             <p>
-            <ul>
-            </ul>
-    {% elif userExists == False %}
-        That user doesn't exist.
+            {% for post in myposts %}
+            {% endfor %}
     {% else %}
         {{username}} hasn't posted anything yet.
             <p>

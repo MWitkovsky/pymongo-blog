@@ -89,8 +89,15 @@ class logout:
         
 class userpage:
     def GET(self):
-        requestedUser = web.ctx.path[3:]
-        return render.userpage(userExists = users.checkExistence(requestedUser), username = requestedUser)
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedUser = web.ctx.path[3:web.ctx.path.index("/", 3)]
+        else:
+            requestedUser = web.ctx.path[3:]
+        renderArgs = {}
+        renderArgs["userExists"] = users.checkExistence(requestedUser)
+        renderArgs["username"] = requestedUser
+        renderArgs["posts"] = None
+        return render.userpage(renderArgs)
         
 if __name__ == "__main__":
     #ensures usernames are unique, if index already exists then no-op
