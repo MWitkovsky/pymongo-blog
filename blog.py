@@ -9,7 +9,9 @@ urls = (
     "/", "index",
     "/signup", "signup",
     "/login", "login",
-    "/logout", "logout"
+    "/logout", "logout",
+    "/newpost", "newpost",
+    "/u/.*", "userpage"
 )
 app = web.application(urls, globals())
 
@@ -72,6 +74,7 @@ class login:
             sessionId = sessions.createSession(i.username)
             web.setcookie("session", sessionId, expires = cookieLifespan)
             raise web.seeother("/")
+        #login failed
         renderArgs = {"username":i.username}
         renderArgs.update(user["errors"])
         return render.login(renderArgs)
@@ -84,8 +87,14 @@ class logout:
             web.setcookie("session", cookie, expires=-1)
         raise web.seeother("/")
         
+class userpage:
+    def GET(self):
+        requestedUser = web.ctx.path[3:]
+        return render.userpage(userExists = users.checkExistence(requestedUser), username = requestedUser)
+        
 if __name__ == "__main__":
     #ensures usernames are unique, if index already exists then no-op
     database.users.create_index([("username", pymongo.ASCENDING)], unique=True)
+    #puts a lifespan on stored sessions so they're automatically purged from the database after the set lifespan
     database.sessions.create_index([("creationDate", pymongo.ASCENDING)], expireAfterSeconds = cookieLifespan)
     app.run()

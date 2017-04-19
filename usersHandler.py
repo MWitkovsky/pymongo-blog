@@ -5,10 +5,25 @@ class UsersHandler:
         self.db = database
         self.users = database.users
         
+    def checkExistence(self, username):
+        try:
+            user = self.users.find_one({"username":username})
+        except:
+            print "An unknown error occurred when attempting to check for user's existence"
+            return False
+        
+        return user is not None
+        
     #attempt to login with a given username and password
     def login(self, username, password):
         user = {"object":None, "errors":None}
-        user["object"] = self.users.find_one({"username":username})
+        try:
+            user["object"] = self.users.find_one({"username":username})
+        except:
+            print "An unknown error occurred when attempting to login"
+            user["errors"] = {"unknown_error":"an unknown error has occurred."}
+            return user
+        
         
         if user["object"] is None:
             print username, "doesn't exist in the database."

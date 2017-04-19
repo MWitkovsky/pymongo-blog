@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Welcome</title>
+</head>
+
+<body>
+    
+    {% if posts %}
+        {{username}}'s most recent posts:
+            <p>
+            <ul>
+            </ul>
+    {% elif userExists == False %}
+        That user doesn't exist.
+    {% else %}
+        {{username}} hasn't posted anything yet.
+            <p>
+            <ul>
+            </ul>
+    {% endif %}
+</body>
+
+</html>
