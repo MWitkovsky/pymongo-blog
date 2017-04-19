@@ -8,7 +8,8 @@ import usersHandler
 urls = (
     "/", "index",
     "/signup", "signup",
-    "/login", "login"
+    "/login", "login",
+    "/logout", "logout"
 )
 app = web.application(urls, globals())
 
@@ -62,14 +63,25 @@ class login:
         if i.username == "":
             return render.login(username_error = "Please enter a username")
         if i.password == "":
-            return render.login(password_error = "Please enter a password")
+            return render.login(username = i.username, password_error = "Please enter a password")
         
         #attempt to login as user
         user = users.login(i.username, i.password)
-        if user is not None:
+        if user["errors"] is None:
             #Success!
             sessionId = sessions.createSession(i.username)
             web.setcookie("session", sessionId, expires = cookieLifespan)
+            raise web.seeother("/")
+        renderArgs = {"username":i.username}
+        renderArgs.update(user["errors"])
+        return render.login(renderArgs)
+    
+class logout:
+    def GET(self):
+        cookie = web.cookies().get('session')
+        if cookie is not None:
+            sessions.endSession(cookie)
+            web.setcookie("session", cookie, expires=-1)
         raise web.seeother("/")
         
 if __name__ == "__main__":

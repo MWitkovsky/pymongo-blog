@@ -18,6 +18,9 @@
 
 <body>
     <h2>Login</h2>
+    <div class="error">
+        {{unknown_error}}
+    </div>
     <form method="post">
         <table>
             <tr>
@@ -25,13 +28,12 @@
                     Username
                 </td>
                 <td>
-                    <input type="text" name="username" value="">
+                    <input type="text" name="username" value="{{username}}">
                 </td>
                 <td class="error">
                     {{username_error}}
                 </td>
             </tr>
-
             <tr>
                 <td class="label">
                     Password
@@ -41,7 +43,6 @@
                 </td>
                 <td class="error">
                     {{password_error}}
-
                 </td>
             </tr>
 

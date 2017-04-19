@@ -7,23 +7,22 @@ class UsersHandler:
         
     #attempt to login with a given username and password
     def login(self, username, password):
-        try:
-            user = self.users.find_one({"username":username})
-        except:
-            print "Error when attempting to retrieve username", username, "from the database."
-            return None
+        user = {"object":None, "errors":None}
+        user["object"] = self.users.find_one({"username":username})
         
-        if user is None:
+        if user["object"] is None:
             print username, "doesn't exist in the database."
-            return None
+            user["errors"] = {"username_error":"that username doesn't exist."}
+            return user
         
         #decrypt password from database and see if it is a match
-        if password == base64.b64decode(user["password"]):
+        if password == base64.b64decode(user["object"]["password"]):
             print "Succsefully logged in user", username
             return user
         else:
             print "Password provided for user", username, "does not match"
-            return None
+            user["errors"] = {"password_error":"incorrect password."}
+            return user
         
     
     #attepmt to create a new account
@@ -40,6 +39,9 @@ class UsersHandler:
         print "Attempting to create new user with username", username
         try:
             self.users.insert_one(newUser)
+        except pymongo.errors.DuplicateKeyError:
+            print username, "already exists in the database"
+            return False
         except:
             print "Error when attempting to add new user with username", username, "to the database."
             return False
