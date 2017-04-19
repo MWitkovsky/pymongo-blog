@@ -24,7 +24,6 @@ class UsersHandler:
             user["errors"] = {"unknown_error":"an unknown error has occurred."}
             return user
         
-        
         if user["object"] is None:
             print username, "doesn't exist in the database."
             user["errors"] = {"username_error":"that username doesn't exist."}

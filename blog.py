@@ -26,6 +26,7 @@ database = connection.blog
 #handler setup
 sessions = sessionHandler.SessionHandler(database)
 users = usersHandler.UsersHandler(database)
+posts = postHandler.PostHandler(database)
 
 #website parameters
 cookieLifespan = 86400
