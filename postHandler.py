@@ -11,18 +11,19 @@ class PostHandler:
         post = {"author" : author,
                "title" : title,
                "body" : body,
-               "tags" : tags
-               "comments" : []
+               "tags" : tags,
+               "comments" : [],
                "date" : datetime.datetime.utcnow()}
         
         #put post in database
         try:
             print "Attempting to insert post by", author, "into the database"
             permalink = self.posts.insert_one(post)
+            return permalink
         except:
             "Unknown error while attempting to insert post by", author, "into the database"
+            return None
         
-        return permalink
     
     #Attempts to get a post from the database with the provided permalink
     def getPost(self, permalink):
