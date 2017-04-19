@@ -4,23 +4,34 @@
 
 <head>
     {%if userExists == True %}
-    <title>posts by {{username}}</title>
+    <title>Posts by {{requestedUser}}</title>
     {% else %}
     <title>There's nothing here...</title>
     {% endif %}
 </head>
 
 <body>
+    {% if username %}
+        Currently signed in as: {{username}}
+        <br>
+        <a href="/logout">Logout</a> | <a href="/">Blog Home</a>
+        <br>
+    {% else %}
+        You are not currently signed in.
+        <br>
+        <a href="/login">Login</a> | <a href="/">Blog Home</a>
+        <br>
+    {% endif %}
     
     {% if userExists == False %}
         That user doesn't exist.
     {% elif posts != None %}
-        {{username}}'s most recent posts:
+        {{requestedUser}}'s most recent posts:
             <p>
             {% for post in myposts %}
             {% endfor %}
     {% else %}
-        {{username}} hasn't posted anything yet.
+        {{requestedUser}} hasn't posted anything yet.
             <p>
             <ul>
             </ul>

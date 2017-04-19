@@ -3,6 +3,7 @@ import pymongo
 from web.contrib.template import render_jinja
 import sessionHandler
 import usersHandler
+import postHandler
 
 #Web.py template setup
 urls = (
@@ -88,6 +89,15 @@ class logout:
             web.setcookie("session", cookie, expires=-1)
         raise web.seeother("/")
         
+class newpost:
+    def GET(self):
+        cookie = web.cookies().get('session')
+        if cookie is not None:
+            username = sessions.validateSession(cookie)
+            return render.newpost(username = username)
+        else:
+            raise web.seeother("/")
+        
 class userpage:
     def GET(self):
         if web.ctx.path[len(web.ctx.path)-1] == "/":
@@ -96,8 +106,11 @@ class userpage:
             requestedUser = web.ctx.path[3:]
         renderArgs = {}
         renderArgs["userExists"] = users.checkExistence(requestedUser)
-        renderArgs["username"] = requestedUser
+        renderArgs["requestedUser"] = requestedUser
         renderArgs["posts"] = None
+        cookie = web.cookies().get('session')
+        if cookie is not None:
+            renderArgs["username"] = sessions.validateSession(cookie)
         return render.userpage(renderArgs)
         
 if __name__ == "__main__":
