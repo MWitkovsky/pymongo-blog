@@ -8,7 +8,7 @@ class UsersHandler:
         
     #attempt to login with a given username and password
     def login(self, username, password):
-        user = {}
+        user = {"errors":None}
         #input sanitization
         if username == "":
             user["errors"] = {"username_error" : "Please enter a username"}
@@ -41,18 +41,18 @@ class UsersHandler:
     
     #attepmt to create a new account
     def createAccount(self, username, password, verify, email):
-        newUser = {}
+        newUser = {"errors":{}}
         #input sanitization
         if username == "":
-            newUser["errors"] = {"username_error" : "Please enter a username"}
+            newUser["errors"].update({"username_error" : "Please enter a username"})
         elif len(username) < 3:
-            newUser["errors"] = {"username_error" : "Username must be at least 3 characters long"}
+            newUser["errors"].update({"username_error" : "Username must be at least 3 characters long"})
         if len(password) < 3:
-            newUser["errors"] = {"password_error" : "Password must be at least 3 characters long"}
+            newUser["errors"].update({"password_error" : "Password must be at least 3 characters long"})
         elif password != verify:
-            newUser["errors"] = {"password_error" : "Passwords do not match."}
+            newUser["errors"].update({"password_error" : "Passwords do not match."})
                 
-        if newUser["errors"] is not None:
+        if newUser["errors"]:
             return newUser
         
         #not actually effective, but "password encoding goes here"
@@ -60,19 +60,21 @@ class UsersHandler:
         
         #make the newUser object, email is optional
         if email != "":
-            newUser = {"username": username, "password":password, "email":email}
+            newUser["object"] = {"username": username, "password":password, "email":email}
         else:
-            newUser = {"username": username, "password":password}
+            newUser["object"] = {"username": username, "password":password}
         
         print "Attempting to create new user with username", username
         try:
             self.users.insert_one(newUser)
         except pymongo.errors.DuplicateKeyError:
             print username, "already exists in the database"
-            return False
+            newUser["errors"] = {"username_error" : "Username already exists."}
+            return newUser
         except:
             print "Error when attempting to add new user with username", username, "to the database."
-            return False
+            newUser["errors"] = {"username_error" : "Unknown database error."}
+            return newUser
         
         print "Successfully created new user", username, "!"
-        return True
+        return newUser

@@ -49,7 +49,7 @@ class signup:
         i = web.input()
         newUser = users.createAccount(i.username, i.password, i.verify, i.email)
         #attepmt to insert new user into database
-        if newUser["errors"] is not None:
+        if newUser["errors"]:
             #failed with errors
             renderArgs = {"username":i.username}
             renderArgs.update(newUser["errors"])
@@ -68,7 +68,7 @@ class login:
         i = web.input()
         #attempt to login as user
         user = users.login(i.username, i.password)
-        if user["errors"] is None:
+        if not user["errors"]:
             #Success!
             sessionId = sessions.createSession(i.username)
             web.setcookie("session", sessionId, expires = cookieLifespan)
@@ -97,11 +97,18 @@ class newpost:
             
     def POST(self):
         i = web.input()
-        #input sanitization
-        if i.title == "":
-            return render.newpost(username = getUsername(), title_error = "title can't be blank")
-        if i.body == "":
-            return render.newpost(username = getUsername(), title_error = "title can't be blank")
+        username = getUsername()
+        if username is None:
+            return render.index(session_error = "Your session has timed out. Please log back in to make a post.")
+        postData = posts.createPost(username, i.title, i.body, i.tags)
+        if not postData["errors"]:
+            renderArgs = {"username" : username, 
+                         "title" : title, 
+                         "body" : body,
+                         "tags" : tags}
+            renderArgs.update(postData["errors"])
+            return render.newpost(renderArgs)
+        
         
 class userpage:
     def GET(self):
@@ -113,9 +120,7 @@ class userpage:
         renderArgs["userExists"] = users.checkExistence(requestedUser)
         renderArgs["requestedUser"] = requestedUser
         renderArgs["posts"] = None
-        cookie = web.cookies().get('session')
-        if cookie is not None:
-            renderArgs["username"] = sessions.validateSession(cookie)
+        renderArgs["username"] = getUsername()
         return render.userpage(renderArgs)
         
 #main
