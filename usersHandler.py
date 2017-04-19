@@ -1,22 +1,18 @@
 import base64
+import pymongo
 
 class UsersHandler:
     def __init__(self, database):
         self.db = database
         self.users = database.users
         
-    def checkExistence(self, username):
-        try:
-            user = self.users.find_one({"username":username})
-        except:
-            print "An unknown error occurred when attempting to check for user's existence"
-            return False
-        
-        return user is not None
-        
     #attempt to login with a given username and password
     def login(self, username, password):
-        user = {"object":None, "errors":None}
+        user = {}
+        #input sanitization
+        if username == "":
+            user["errors"] = {"username_error" : "Please enter a username"}
+            
         try:
             user["object"] = self.users.find_one({"username":username})
         except:
@@ -27,6 +23,10 @@ class UsersHandler:
         if user["object"] is None:
             print username, "doesn't exist in the database."
             user["errors"] = {"username_error":"that username doesn't exist."}
+            return user
+        
+        if password == "":
+            user["errors"] = {"password_error" : "Please enter a password"}
             return user
         
         #decrypt password from database and see if it is a match
@@ -40,7 +40,21 @@ class UsersHandler:
         
     
     #attepmt to create a new account
-    def createAccount(self, username, password, email):
+    def createAccount(self, username, password, verify, email):
+        newUser = {}
+        #input sanitization
+        if username == "":
+            newUser["errors"] = {"username_error" : "Please enter a username"}
+        elif len(username) < 3:
+            newUser["errors"] = {"username_error" : "Username must be at least 3 characters long"}
+        if len(password) < 3:
+            newUser["errors"] = {"password_error" : "Password must be at least 3 characters long"}
+        elif password != verify:
+            newUser["errors"] = {"password_error" : "Passwords do not match."}
+                
+        if newUser["errors"] is not None:
+            return newUser
+        
         #not actually effective, but "password encoding goes here"
         password = base64.b64encode(password)
         

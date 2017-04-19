@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/default.css">
     <title>New Post</title>
 </head>
 
@@ -14,7 +15,7 @@
     {% endif %}
     
         <form action="/newpost" method="POST">
-            {{errors}}
+            {{title_error}}
             <h2>Title</h2>
             <input type="text" name="title" size="120" value="{{title}}"><br>
             <h2>Blog Entry</h2>

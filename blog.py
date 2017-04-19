@@ -32,26 +32,28 @@ posts = postHandler.PostHandler(database)
 #website parameters
 cookieLifespan = 86400
 
+#helper functions
+def getUsername():
+    return sessions.validateSession(web.cookies().get('session'))
+        
+#web.py webpage classes
 class index:
     def GET(self):
-        cookie = web.cookies().get('session')
-        username = sessions.validateSession(cookie)
-        return render.index(username = username)
+        return render.index(username = getUsername())
     
 class signup:
     def GET(self):
         return render.signup()
+    
     def POST(self):
         i = web.input()
-        #input sanitization
-        if i.username == "":
-            return render.signup(username_error = "Please enter a username")
-        if i.password != i.verify:
-            return render.signup(verify_error = "Passwords do not match.")
-        
+        newUser = users.createAccount(i.username, i.password, i.verify, i.email)
         #attepmt to insert new user into database
-        if users.createAccount(i.username, i.password, i.email) == False:
-            return render.signup(username_error = "Username already in use")
+        if newUser["errors"] is not None:
+            #failed with errors
+            renderArgs = {"username":i.username}
+            renderArgs.update(newUser["errors"])
+            return render.signup(renderArgs)
         else:
             #Success!
             sessionId = sessions.createSession(i.username)
@@ -61,14 +63,9 @@ class signup:
 class login:
     def GET(self):
         return render.login()
+    
     def POST(self):
         i = web.input()
-        #input sanitization
-        if i.username == "":
-            return render.login(username_error = "Please enter a username")
-        if i.password == "":
-            return render.login(username = i.username, password_error = "Please enter a password")
-        
         #attempt to login as user
         user = users.login(i.username, i.password)
         if user["errors"] is None:
@@ -97,6 +94,14 @@ class newpost:
             return render.newpost(username = username)
         else:
             raise web.seeother("/")
+            
+    def POST(self):
+        i = web.input()
+        #input sanitization
+        if i.title == "":
+            return render.newpost(username = getUsername(), title_error = "title can't be blank")
+        if i.body == "":
+            return render.newpost(username = getUsername(), title_error = "title can't be blank")
         
 class userpage:
     def GET(self):
@@ -113,6 +118,7 @@ class userpage:
             renderArgs["username"] = sessions.validateSession(cookie)
         return render.userpage(renderArgs)
         
+#main
 if __name__ == "__main__":
     #ensures usernames are unique, if index already exists then no-op
     database.users.create_index([("username", pymongo.ASCENDING)], unique=True)
