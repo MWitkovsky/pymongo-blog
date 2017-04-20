@@ -13,21 +13,19 @@
 
 <body>
     {% if username %}
-        Currently signed in as: {{username}}
-        <br>
-        <a href="/logout">Logout</a> | <a href="/">Blog Home</a>
+        Currently signed in as: {{username}}<br>
+        <a href="/logout">Logout</a> | <a href="/">Blog Home</a><br>
         <br>
     {% else %}
-        You are not currently signed in.
-        <br>
-        <a href="/login">Login</a> | <a href="/">Blog Home</a>
+        You are not currently signed in.<br>
+        <a href="/login">Login</a> | <a href="/">Blog Home</a><br>
         <br>
     {% endif %}
     
     {% if title is not none %}
         <h2>{{title}}</h2> by {{author}} on {{date}}
         <br>
-        <textarea name="body" cols="120" rows="20">{{body}}</textarea>
+        <textarea readonly name="body" cols="120" rows="20">{{body}}</textarea>
         <br>
         Tags: {% for tag in tags %} {{tag}}, {% endfor %}
         

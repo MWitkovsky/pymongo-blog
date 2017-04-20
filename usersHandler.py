@@ -11,9 +11,11 @@ class UsersHandler:
             user = self.users.find_one({"lowerUsername":username.lower()})
         except:
             print "An unknown error occurred when attempting to check for user's existence"
-            return False
-        
-        return user is not None
+            return None
+        if user is not None:
+            return user["username"]
+        else:
+            return None
     
     #attempt to login with a given username and password
     def login(self, username, password):
@@ -41,11 +43,11 @@ class UsersHandler:
         #decrypt password from database and see if it is a match
         if password == base64.b64decode(user["object"]["password"]):
             print "Succsefully logged in user", username
-            return user
         else:
             print "Password provided for user", username, "does not match"
             user["errors"] = {"password_error":"incorrect password."}
-            return user
+        
+        return user
         
     
     #attepmt to create a new account

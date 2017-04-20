@@ -4,7 +4,7 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="../static/stylesheets/default.css">
-    {%if userExists == True %}
+    {%if userExists %}
     <title>Posts by {{requestedUser}}</title>
     {% else %}
     <title>There's nothing here...</title>
@@ -13,23 +13,27 @@
 
 <body>
     {% if username %}
-        Currently signed in as: {{username}}
-        <br>
-        <a href="/logout">Logout</a> | <a href="/">Blog Home</a>
+        Currently signed in as: {{username}}<br>
+        <a href="/logout">Logout</a> | <a href="/">Blog Home</a><br>
         <br>
     {% else %}
-        You are not currently signed in.
-        <br>
-        <a href="/login">Login</a> | <a href="/">Blog Home</a>
+        You are not currently signed in.<br>
+        <a href="/login">Login</a> | <a href="/">Blog Home</a><br>
         <br>
     {% endif %}
     
     {% if userExists == False %}
         That user doesn't exist.
-    {% elif posts != none %}
-        {{requestedUser}}'s most recent posts:
-            <p>
-            {% for post in myposts %}
+    {% elif posts %}
+        {{requestedUser}}'s most recent posts:<br>
+            {% for post in posts %}
+                <h2>{{post["title"]}}</h2> by {{post["author"]}} on {{post["date"]}}
+                <br>
+                <textarea readonly name="body" cols="120" rows="20">{{post["body"]}}</textarea>
+                <br>
+                Tags: {% for tag in post["tags"] %} {{tag}}, {% endfor %}
+                <br>
+                <br>
             {% endfor %}
     {% else %}
         {{requestedUser}} hasn't posted anything yet.

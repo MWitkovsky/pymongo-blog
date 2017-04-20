@@ -1,4 +1,5 @@
 import datetime
+import pymongo
 from bson.objectid import ObjectId
 
 class PostHandler:
@@ -38,10 +39,9 @@ class PostHandler:
             print "Attempting to insert post by", author, "into the database"
             self.posts.insert_one(post)
             postData["permalink"] = post["_id"]
-            return postData
         except:
             "Unknown error while attempting to insert post by", author, "into the database"
-            return postData
+        return postData
         
     
     #Attempts to get a post from the database with the provided permalink
@@ -49,6 +49,33 @@ class PostHandler:
         post = self.posts.find_one({"_id": ObjectId(permalink)})
         #fix the date up to be pretty, ignoring time zones for now..
         if post is not None:
-            post['date'] = post['date'].strftime("%m/%d/%y at %I:%M%p")
+            post["date"] = post["date"].strftime("%m/%d/%y at %I:%M%p")
             
         return post
+    
+    #Attempts to get a specified number of posts from a specified author. 
+    #If author is none, then gets the specified number of most recent posts on the entire website
+    def getMostRecentPosts(self, author, amount):
+        posts = None
+        if author is not None:
+            try:
+                posts = self.posts.find({"author":author})
+                posts.sort([("date", pymongo.DESCENDING)])
+                posts.limit(amount)
+            except:
+                print "Unknown error while attempting to get posts by", author
+        else:
+            try:
+                posts = self.posts.find("date", pymongo.DESCENDING)
+                posts.limit(amount)
+            except:
+                print "Unknown error while attempting to get most recent posts" 
+        
+        postsToReturn = []
+        for post in posts:
+            post["date"] = post["date"].strftime("%m/%d/%y at %I:%M%p")
+            if "comments" not in post:
+                post["comments"] = []
+            postsToReturn.append(post)
+        
+        return postsToReturn

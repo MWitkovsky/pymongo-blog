@@ -128,11 +128,13 @@ class userpage:
             requestedUser = web.ctx.path[3:web.ctx.path.index("/", 3)]
         else:
             requestedUser = web.ctx.path[3:]
-        renderArgs = {}
-        renderArgs["userExists"] = users.checkExistence(requestedUser)
-        renderArgs["requestedUser"] = requestedUser
-        renderArgs["posts"] = None
-        renderArgs["username"] = getUsername()
+        requestedUser = users.checkExistence(requestedUser)
+        renderArgs = {"userExists" : requestedUser is not None,
+                     "requestedUser" : requestedUser,
+                     "posts" : None,
+                     "username" : getUsername()}
+        if renderArgs["userExists"]:
+            renderArgs["posts"] = posts.getMostRecentPosts(requestedUser, 10)
         return render.userpage(renderArgs)
 
 #main
@@ -141,7 +143,8 @@ if __name__ == "__main__":
     database.users.create_index([("lowerUsername", pymongo.ASCENDING)], unique=True)
     #puts a lifespan on stored sessions so they're automatically purged from the database after the set lifespan
     database.sessions.create_index([("creationDate", pymongo.ASCENDING)], expireAfterSeconds = cookieLifespan)
-    #sets up an index on post permalinks and post dates
+    #sets up an index on post permalinks, post authors, and post dates
     database.posts.create_index([("permalink", pymongo.ASCENDING)])
+    database.posts.create_index([("author", pymongo.ASCENDING)])
     database.posts.create_index([("date", pymongo.ASCENDING)])
     app.run()
