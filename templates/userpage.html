@@ -27,7 +27,10 @@
     {% elif posts %}
         {{requestedUser}}'s most recent posts:<br>
             {% for post in posts %}
-                <h2>{{post["title"]}}</h2> by <a href="/u/{{post['author']}}">{{post["author"]}}</a> on <a href="/p/{{post['_id']}}">{{post["date"]}}</a>
+                <h2>{{post["title"]}}</h2> by <a href="/u/{{post['author']}}">{{post["author"]}}</a> on <a href="/p/{{post['_id']}}">{{post["date"]}}</a><br>
+                {% if post["edited"] %}
+                    Last edited on {{post["editDate"]}}
+                {% endif %}
                 <br>
                 <textarea readonly name="body" cols="120" rows="20">{{post["body"]}}</textarea>
                 <br>
@@ -36,6 +39,10 @@
                     <a href="/t/{{tag}}">{{tag}}</a>{%- if not loop.last %},{% endif %}
                 {% endfor %}
                 <br>
+                {% if username == post["author"] %}
+                    User Actions:
+                        <a href="/p/edit/{{post['_id']}}">Edit Post</a> | <a href="/p/del/{{_id}}">Delete Post</a>
+                {% endif %}
                 <br>
             {% endfor %}
     {% else %}

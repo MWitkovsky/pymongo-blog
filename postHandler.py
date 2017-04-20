@@ -66,13 +66,13 @@ class PostHandler:
         post = {"title" : title,
                "body" : body,
                "tags" : strippedTagsList,
-               "date" : datetime.datetime.utcnow(),
+               "editDate" : datetime.datetime.utcnow().strftime("%m/%d/%y at %I:%M%p"),
                "edited" : True}
         
         #put post in database
         try:
             print "Attempting to update post", _id
-            self.posts.update_one({"_id":ObjectId(_id)}, {"$set":{post}})
+            self.posts.update_one({"_id":ObjectId(_id)}, {"$set":post})
         except:
             "Unknown error while attempting to update post", _id
         return postData

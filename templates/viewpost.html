@@ -23,7 +23,10 @@
     {% endif %}
     
     {% if title != "" %}
-        <h2>{{title}}</h2> by <a href="/u/{{author}}">{{author}}</a> on <a href="/p/{{_id}}">{{date}}</a>
+        <h2>{{title}}</h2> by <a href="/u/{{author}}">{{author}}</a> on <a href="/p/{{_id}}">{{date}}</a><br>
+        {% if edited %}
+            Last edited on {{editDate}}
+        {% endif %}
         <br>
         <textarea readonly name="body" cols="120" rows="20">{{body}}</textarea>
         <br>
@@ -31,7 +34,11 @@
         {% for tag in tags %}
             <a href="/t/{{tag}}">{{tag}}</a>{%- if not loop.last %},{% endif %}
         {% endfor %}
-        
+        <br>
+        {% if username == author %}
+        User Actions:
+            <a href="/p/edit/{{_id}}">Edit</a> | <a href="/p/del/{{_id}}">Delete</a>
+        {% endif %}
     {% endif %}
 </body>
 

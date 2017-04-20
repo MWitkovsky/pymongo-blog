@@ -13,8 +13,9 @@ urls = (
     "/login", "login",
     "/logout", "logout",
     "/newpost", "newpost",
-    "/p/(?!edit/).*", "viewpost",
+    "/p/(?!edit/)(?!del/).*", "viewpost",
     "/p/edit/.*", "editpost",
+    "/p/del/.*", "deletepost",
     "/t/.*", "viewtag",
     "/u/.*", "userpage"    
 )
@@ -128,7 +129,7 @@ class viewpost:
 class editpost:
     def GET(self):
         if web.ctx.path[len(web.ctx.path)-1] == "/":
-            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 3)]
+            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
         else:
             requestedPost = web.ctx.path[8:]
         renderArgs = posts.getPost(requestedPost)
@@ -141,7 +142,7 @@ class editpost:
     def POST(self):
         i = web.input()
         if web.ctx.path[len(web.ctx.path)-1] == "/":
-            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 3)]
+            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
         else:
             requestedPost = web.ctx.path[8:]
             
@@ -158,7 +159,14 @@ class editpost:
             return render.editpost(renderArgs)
         else:
             raise web.seeother("/p/"+requestedPost)
-    
+
+class deletepost:
+    def GET(self):
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
+        else:
+            requestedPost = web.ctx.path[7:]
+
 class viewtag:
     def GET(self):
         if web.ctx.path[len(web.ctx.path)-1] == "/":
