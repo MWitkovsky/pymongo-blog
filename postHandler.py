@@ -21,16 +21,16 @@ class PostHandler:
         if postData["errors"]:
             return postData
         
-        tags.replace(" ", "")
         tagsList = tags.split(",")
+
         for tag in tagsList:
-            tag.strip()
+            tag = tag.strip()
         
         #build the post object
         post = {"author" : author,
                "title" : title,
                "body" : body,
-               "tags" : tags,
+               "tags" : tagsList,
                "comments" : [],
                "date" : datetime.datetime.utcnow()}
         
