@@ -41,7 +41,7 @@
                 <br>
                 {% if username == post["author"] %}
                     User Actions:
-                        <a href="/p/edit/{{post['_id']}}">Edit Post</a> | <a href="/p/del/{{_id}}">Delete Post</a>
+                        <a href="/p/edit/{{post['_id']}}">Edit Post</a> | <a href="/p/del/{{post['_id']}}">Delete Post</a>
                 {% endif %}
                 <br>
             {% endfor %}

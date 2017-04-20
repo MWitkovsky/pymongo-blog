@@ -123,8 +123,11 @@ class viewpost:
         else:
             requestedPost = web.ctx.path[3:]
         renderArgs = posts.getPost(requestedPost)
-        renderArgs["username"] = getUsername()
-        return render.viewpost(renderArgs)
+        if renderArgs:
+            renderArgs["username"] = getUsername()
+            return render.viewpost(renderArgs)
+        else:
+            return render.index(session_error = "That post doesn't exist.", username = getUsername())
     
 class editpost:
     def GET(self):
@@ -162,10 +165,40 @@ class editpost:
 
 class deletepost:
     def GET(self):
+        i = web.input()
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
         else:
             requestedPost = web.ctx.path[7:]
+        username = getUsername()
+        post = posts.getPost(requestedPost)
+        if not post:
+            return render.index(session_error = "That post doesn't exist.", username = username)
+        elif username is None:
+            return render.index(session_error = "Your session has timed out. Please log back in to delete your post.", username = username)
+        elif username != post["author"]:
+            return render.index(session_error = "You do not have permission to do that.", username = username)
+        return render.deletepost(username = username, _id = requestedPost)
+    
+    def POST(self):
+        i = web.input()
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
+        else:
+            requestedPost = web.ctx.path[7:]
+        username = getUsername()
+        if username is None:
+            return render.index(session_error = "Your session has timed out. Please log back in to delete your post.", username = username)
+       
+        elif username != posts.getPost(requestedPost)["author"]:
+            return render.index(session_error = "You do not have permission to do that.", username = username)
+        
+        if i.response == "True":
+            posts.deletePost(requestedPost)
+            return render.index(session_error = "Post deleted.", username = username)
+        elif i.response == "False":
+            raise web.seeother("/p/"+requestedPost)
+        
 
 class viewtag:
     def GET(self):

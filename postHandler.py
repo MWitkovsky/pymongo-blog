@@ -39,10 +39,12 @@ class PostHandler:
         try:
             print "Attempting to insert post by", author, "into the database"
             self.posts.insert_one(post)
+            postData.update(post)
         except:
             "Unknown error while attempting to insert post by", author, "into the database"
         return postData
         
+    #Attempts to edit a post that already exists given the id
     def editPost(self, _id, title, body, tags):
         postData = {"errors":{}}
         #input sanitization
@@ -77,12 +79,19 @@ class PostHandler:
             "Unknown error while attempting to update post", _id
         return postData
     
-    #Attempts to get a post from the database with the provided permalink
-    def getPost(self, permalink):
+    #Attempts to delete a post using its id
+    def deletePost(self, _id):
         try:
-            post = self.posts.find_one({"_id": ObjectId(permalink)})
+            self.posts.delete_one({"_id": ObjectId(_id)})
         except:
-            print "invalid permalink, aborting"
+            print "Error when attempting deletion, aborting"
+    
+    #Attempts to get a post from the database with the provided id
+    def getPost(self, _id):
+        try:
+            post = self.posts.find_one({"_id": ObjectId(_id)})
+        except:
+            print "invalid id, aborting"
             post = None
             
         #fix the date up to be pretty, ignoring time zones for now..

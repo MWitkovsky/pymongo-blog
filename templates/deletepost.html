@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/default.css">
+    <title>Delete Post</title>
+</head>
+
+<body>
+    {% if username %}
+        Currently signed in as: {{username}}<br>
+        <a href="/logout">Logout</a> | <a href="/">Blog Home</a><br>
+        <br>
+    {% else %}
+        You are not currently signed in.<br>
+        <a href="/login">Login</a> | <a href="/">Blog Home</a><br>
+        <br>
+    {% endif %}
+    <h2>Delete Post</h2>
+    Are you sure you want to delete this post?<br>
+    <form>
+        <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=True" value="True">Yes</button> 
+        <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=False" value="False">No</button> 
+    </form>
+</body>
+
+</html>

@@ -37,7 +37,10 @@
                     <a href="/t/{{tag}}">{{tag}}</a>{%- if not loop.last %},{% endif %}
                 {% endfor %}
                 <br>
-                <br>
+                {% if username == post["author"] %}
+                    User Actions:
+                        <a href="/p/edit/{{post['_id']}}">Edit Post</a> | <a href="/p/del/{{post['_id']}}">Delete Post</a>
+                {% endif %}
             {% endfor %}
     {% else %}
         There are no posts under the tag "{{tag}}" yet.
