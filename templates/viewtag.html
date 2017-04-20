@@ -22,10 +22,8 @@
         <br>
     {% endif %}
     
-    {% if userExists == False %}
-        That user doesn't exist.
-    {% elif posts %}
-        {{requestedUser}}'s most recent posts:<br>
+    {% if posts %}
+        Most recent posts under the tag "{{tag}}":<br>
             {% for post in posts %}
                 <h2>{{post["title"]}}</h2> by <a href="/u/{{post['author']}}">{{post["author"]}}</a> on <a href="/p/{{post['_id']}}">{{post["date"]}}</a>
                 <br>
@@ -39,7 +37,7 @@
                 <br>
             {% endfor %}
     {% else %}
-        {{requestedUser}} hasn't posted anything yet.
+        There are no posts under the tag "{{tag}}" yet.
             <p>
     {% endif %}
 </body>

@@ -4,8 +4,8 @@
 
 <head>
     <link rel="stylesheet" type="text/css" href="../static/stylesheets/default.css">
-    {%if userExists == True %}
-    <title>Posts by {{requestedUser}}</title>
+    {% if title is not none %}
+    <title>{{title}}</title>
     {% else %}
     <title>There's nothing here...</title>
     {% endif %}
@@ -22,14 +22,14 @@
         <br>
     {% endif %}
     
-    {% if title is not none %}
-        <h2>{{title}}</h2> by {{author}} on {{date}}
+    {% if title != "" %}
+        <h2>{{title}}</h2> by <a href="/u/{{author}}">{{author}}</a> on <a href="/p/{{_id}}">{{date}}</a>
         <br>
         <textarea readonly name="body" cols="120" rows="20">{{body}}</textarea>
         <br>
         Tags: 
         {% for tag in tags %}
-            {{tag}}{%- if not loop.last %},{% endif %}
+            <a href="/t/{{tag}}">{{tag}}</a>{%- if not loop.last %},{% endif %}
         {% endfor %}
         
     {% endif %}

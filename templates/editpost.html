@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="../../static/stylesheets/default.css">
+    {% if title is not none %}
+    <title>{{title}}</title>
+    {% else %}
+    <title>There's nothing here...</title>
+    {% endif %}
+</head>
+
+<body>
+    {% if username %}
+        Currently signed in as: {{username}}<br>
+        <a href="/logout">Logout</a> | <a href="/">Blog Home</a><br>
+        <br>
+    {% else %}
+        You are not currently signed in.<br>
+        <a href="/login">Login</a> | <a href="/">Blog Home</a><br>
+        <br>
+    {% endif %}
+    
+    {% if title %}
+        <form action="/p/edit/{{_id}}" method="POST">
+            <div class="error">
+                {{title_error}}
+            </div>
+            <h2>Title</h2>
+            <input type="text" name="title" size="120" value="{{title}}">
+            <br>
+            <h2>Blog Entry</h2>
+            <div class="error">
+                {{body_error}}
+            </div>
+            <textarea name="body" cols="120" rows="20">{{body}}</textarea>
+            <br>
+            <h2>Tags</h2>
+            <div class="error">
+                {{tag_error}}
+            </div>
+            Separate tags with commas<br>
+            <input type="text" name="tags" size="120" value="{% for tag in tags %}{{tag}}{%- if not loop.last %}, {% endif %}{% endfor %}">
+            <br>
+            <br>
+            <input type="submit" value="Submit">
+    
+    {% else %}
+        Post not found.
+    {% endif %}
+</body>
+
+</html>

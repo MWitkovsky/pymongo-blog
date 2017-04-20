@@ -13,7 +13,9 @@ urls = (
     "/login", "login",
     "/logout", "logout",
     "/newpost", "newpost",
-    "/p/.*", "viewpost",
+    "/p/(?!edit/).*", "viewpost",
+    "/p/edit/.*", "editpost",
+    "/t/.*", "viewtag",
     "/u/.*", "userpage"    
 )
 app = web.application(urls, globals())
@@ -111,7 +113,7 @@ class newpost:
             renderArgs.update(postData["errors"])
             return render.newpost(renderArgs)
         else:        
-            raise web.seeother("/p/"+str(postData["permalink"]))
+            raise web.seeother("/p/"+str(postData["_id"]))
         
 class viewpost:
     def GET(self):
@@ -122,6 +124,51 @@ class viewpost:
         renderArgs = posts.getPost(requestedPost)
         renderArgs["username"] = getUsername()
         return render.viewpost(renderArgs)
+    
+class editpost:
+    def GET(self):
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 3)]
+        else:
+            requestedPost = web.ctx.path[8:]
+        renderArgs = posts.getPost(requestedPost)
+        renderArgs["username"] = getUsername()
+        #throws user away from edit page if they're not the author
+        if renderArgs["author"] != renderArgs["username"]:
+            raise web.seeother("/p/"+requestedPost)
+        return render.editpost(renderArgs)
+    
+    def POST(self):
+        i = web.input()
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedPost = web.ctx.path[8:web.ctx.path.index("/", 3)]
+        else:
+            requestedPost = web.ctx.path[8:]
+            
+        username = getUsername()
+        if username is None:
+            return render.index(session_error = "Your session has timed out. Please log back in to edit your post.")
+        postData = posts.editPost(requestedPost, i.title, i.body, i.tags)
+        if postData["errors"]:
+            renderArgs = posts.getPost(requestedPost)
+            renderArgs.update({"username" : username, 
+                         "title" : i.title, 
+                         "body" : i.body})
+            renderArgs.update(postData["errors"])
+            return render.editpost(renderArgs)
+        else:
+            raise web.seeother("/p/"+requestedPost)
+    
+class viewtag:
+    def GET(self):
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedTag = web.ctx.path[3:web.ctx.path.index("/", 3)]
+        else:
+            requestedTag = web.ctx.path[3:]
+        renderArgs = {"tag" : requestedTag,
+                     "posts" : posts.getMostRecentPostsByTag(requestedTag, 10),
+                     "username" : getUsername()}
+        return render.viewtag(renderArgs)
         
 class userpage:
     def GET(self):
@@ -135,7 +182,7 @@ class userpage:
                      "posts" : None,
                      "username" : getUsername()}
         if renderArgs["userExists"]:
-            renderArgs["posts"] = posts.getMostRecentPosts(requestedUser, 10)
+            renderArgs["posts"] = posts.getMostRecentPostsByAuthor(requestedUser, 10)
         return render.userpage(renderArgs)
 
 #main
@@ -144,8 +191,8 @@ if __name__ == "__main__":
     database.users.create_index([("lowerUsername", pymongo.ASCENDING)], unique=True)
     #puts a lifespan on stored sessions so they're automatically purged from the database after the set lifespan
     database.sessions.create_index([("creationDate", pymongo.ASCENDING)], expireAfterSeconds = cookieLifespan)
-    #sets up an index on post permalinks, post authors, and post dates
-    database.posts.create_index([("permalink", pymongo.ASCENDING)])
+    #sets up an index on post authors, post tags, and post dates
     database.posts.create_index([("author", pymongo.ASCENDING)])
+    database.posts.create_index([("tags", pymongo.ASCENDING)])
     database.posts.create_index([("date", pymongo.ASCENDING)])
     app.run()
