@@ -118,6 +118,9 @@ class newpost:
         
 class viewpost:
     def GET(self):
+        if len(web.ctx.path) <= 3:
+             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[3:web.ctx.path.index("/", 3)]
         else:
@@ -131,10 +134,14 @@ class viewpost:
     
 class editpost:
     def GET(self):
+        if len(web.ctx.path) <= 8:
+             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
         else:
             requestedPost = web.ctx.path[8:]
+            
         renderArgs = posts.getPost(requestedPost)
         renderArgs["username"] = getUsername()
         #throws user away from edit page if they're not the author
@@ -144,6 +151,9 @@ class editpost:
     
     def POST(self):
         i = web.input()
+        if len(web.ctx.path) <= 8:
+             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
         else:
@@ -165,7 +175,9 @@ class editpost:
 
 class deletepost:
     def GET(self):
-        i = web.input()
+        if len(web.ctx.path) <= 7:
+             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
         else:
@@ -182,6 +194,9 @@ class deletepost:
     
     def POST(self):
         i = web.input()
+        if len(web.ctx.path) <= 7:
+             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
         else:
@@ -202,6 +217,9 @@ class deletepost:
 
 class viewtag:
     def GET(self):
+        if len(web.ctx.path) <= 3:
+             return render.index(username = getUsername())
+            
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedTag = web.ctx.path[3:web.ctx.path.index("/", 3)]
         else:
@@ -213,6 +231,8 @@ class viewtag:
         
 class userpage:
     def GET(self):
+        if len(web.ctx.path) <= 3:
+             return render.userpage(username = getUsername(), userExists = False)
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedUser = web.ctx.path[3:web.ctx.path.index("/", 3)]
         else:
