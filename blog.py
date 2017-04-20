@@ -6,6 +6,7 @@ import usersHandler
 import postHandler
 
 #Web.py template setup
+#"\/p\/(?!static).*", "viewpost",
 urls = (
     "/", "index",
     "/signup", "signup",
@@ -13,7 +14,7 @@ urls = (
     "/logout", "logout",
     "/newpost", "newpost",
     "/p/.*", "viewpost",
-    "/u/.*", "userpage"
+    "/u/.*", "userpage"    
 )
 app = web.application(urls, globals())
 
@@ -104,13 +105,13 @@ class newpost:
         postData = posts.createPost(username, i.title, i.body, i.tags)
         if postData["errors"]:
             renderArgs = {"username" : username, 
-                         "title" : title, 
-                         "body" : body,
-                         "tags" : tags}
+                         "title" : i.title, 
+                         "body" : i.body,
+                         "tags" : i.tags}
             renderArgs.update(postData["errors"])
             return render.newpost(renderArgs)
         else:        
-            raise web.seeother("/p/"+postData["permalink"])
+            raise web.seeother("/p/"+str(postData["permalink"]))
         
 class viewpost:
     def GET(self):
@@ -140,4 +141,7 @@ if __name__ == "__main__":
     database.users.create_index([("lowerUsername", pymongo.ASCENDING)], unique=True)
     #puts a lifespan on stored sessions so they're automatically purged from the database after the set lifespan
     database.sessions.create_index([("creationDate", pymongo.ASCENDING)], expireAfterSeconds = cookieLifespan)
+    #sets up an index on post permalinks and post dates
+    database.posts.create_index([("permalink", pymongo.ASCENDING)])
+    database.posts.create_index([("date", pymongo.ASCENDING)])
     app.run()

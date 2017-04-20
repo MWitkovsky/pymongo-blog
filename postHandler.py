@@ -1,4 +1,5 @@
 import datetime
+from bson.objectid import ObjectId
 
 class PostHandler:
     def __init__(self, database):
@@ -16,8 +17,13 @@ class PostHandler:
         if tags == "":
             postData["errors"].update({"tag_error" : "There must be at least one tag for your post."})
             
-        if post["errors"]:
+        if postData["errors"]:
             return postData
+        
+        tags.replace(" ", "")
+        tagsList = tags.split(",")
+        for tag in tagsList:
+            tag.strip()
         
         #build the post object
         post = {"author" : author,
@@ -30,7 +36,8 @@ class PostHandler:
         #put post in database
         try:
             print "Attempting to insert post by", author, "into the database"
-            postData["permalink"] = self.posts.insert_one(post)
+            self.posts.insert_one(post)
+            postData["permalink"] = post["_id"]
             return postData
         except:
             "Unknown error while attempting to insert post by", author, "into the database"
@@ -39,9 +46,9 @@ class PostHandler:
     
     #Attempts to get a post from the database with the provided permalink
     def getPost(self, permalink):
-        post = self.posts.find_one({"_id":permalink})
-        
+        post = self.posts.find_one({"_id": ObjectId(permalink)})
+        #fix the date up to be pretty, ignoring time zones for now..
         if post is not None:
-            post["date"] = post['date'].strftime("%-m/%-d/%y at %-I:%M%p")
+            post['date'] = post['date'].strftime("%m/%d/%y at %I:%M%p")
             
         return post

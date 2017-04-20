@@ -3,7 +3,7 @@
 <html>
 
 <head>
-<!--    <link rel="stylesheet" type="text/css" href="static/stylesheets/default.css">-->
+    <link rel="stylesheet" type="text/css" href="../static/stylesheets/default.css">
     {%if userExists == True %}
     <title>Posts by {{requestedUser}}</title>
     {% else %}
@@ -26,7 +26,7 @@
     
     {% if userExists == False %}
         That user doesn't exist.
-    {% elif posts != None %}
+    {% elif posts != none %}
         {{requestedUser}}'s most recent posts:
             <p>
             {% for post in myposts %}
