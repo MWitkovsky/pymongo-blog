@@ -22,15 +22,16 @@ class PostHandler:
             return postData
         
         tagsList = tags.split(",")
-
+        strippedTagsList = []
         for tag in tagsList:
             tag = tag.strip()
+            strippedTagsList.append(tag)
         
         #build the post object
         post = {"author" : author,
                "title" : title,
                "body" : body,
-               "tags" : tagsList,
+               "tags" : strippedTagsList,
                "comments" : [],
                "date" : datetime.datetime.utcnow()}
         

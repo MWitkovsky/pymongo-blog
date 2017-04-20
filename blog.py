@@ -120,6 +120,7 @@ class viewpost:
         else:
             requestedPost = web.ctx.path[3:]
         renderArgs = posts.getPost(requestedPost)
+        renderArgs["username"] = getUsername()
         return render.viewpost(renderArgs)
         
 class userpage:

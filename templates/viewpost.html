@@ -27,7 +27,10 @@
         <br>
         <textarea readonly name="body" cols="120" rows="20">{{body}}</textarea>
         <br>
-        Tags: {% for tag in tags %} {{tag}}, {% endfor %}
+        Tags: 
+        {% for tag in tags %}
+            {{tag}}{%- if not loop.last %},{% endif %}
+        {% endfor %}
         
     {% endif %}
 </body>
