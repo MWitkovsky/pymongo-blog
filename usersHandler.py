@@ -6,6 +6,15 @@ class UsersHandler:
         self.db = database
         self.users = database.users
         
+    def checkExistence(self, username):
+        try:
+            user = self.users.find_one({"lowerUsername":username.lower()})
+        except:
+            print "An unknown error occurred when attempting to check for user's existence"
+            return False
+        
+        return user is not None
+    
     #attempt to login with a given username and password
     def login(self, username, password):
         user = {"errors":None}
@@ -14,7 +23,7 @@ class UsersHandler:
             user["errors"] = {"username_error" : "Please enter a username"}
             
         try:
-            user["object"] = self.users.find_one({"username":username})
+            user["object"] = self.users.find_one({"lowerUsername":username.lower()})
         except:
             print "An unknown error occurred when attempting to login"
             user["errors"] = {"unknown_error":"an unknown error has occurred."}
@@ -60,13 +69,13 @@ class UsersHandler:
         
         #make the newUser object, email is optional
         if email != "":
-            newUser["object"] = {"username": username, "password":password, "email":email}
+            newUser["object"] = {"lowerUsername": username.lower(), "username":username, "password":password, "email":email}
         else:
-            newUser["object"] = {"username": username, "password":password}
+            newUser["object"] = {"lowerUsername": username.lower(), "username":username, "password":password}
         
         print "Attempting to create new user with username", username
         try:
-            self.users.insert_one(newUser)
+            self.users.insert_one(newUser["object"])
         except pymongo.errors.DuplicateKeyError:
             print username, "already exists in the database"
             newUser["errors"] = {"username_error" : "Username already exists."}

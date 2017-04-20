@@ -12,6 +12,7 @@ urls = (
     "/login", "login",
     "/logout", "logout",
     "/newpost", "newpost",
+    "/p/.*", "viewpost",
     "/u/.*", "userpage"
 )
 app = web.application(urls, globals())
@@ -70,7 +71,7 @@ class login:
         user = users.login(i.username, i.password)
         if not user["errors"]:
             #Success!
-            sessionId = sessions.createSession(i.username)
+            sessionId = sessions.createSession(user["object"]["username"])
             web.setcookie("session", sessionId, expires = cookieLifespan)
             raise web.seeother("/")
         #login failed
@@ -101,14 +102,24 @@ class newpost:
         if username is None:
             return render.index(session_error = "Your session has timed out. Please log back in to make a post.")
         postData = posts.createPost(username, i.title, i.body, i.tags)
-        if not postData["errors"]:
+        if postData["errors"]:
             renderArgs = {"username" : username, 
                          "title" : title, 
                          "body" : body,
                          "tags" : tags}
             renderArgs.update(postData["errors"])
             return render.newpost(renderArgs)
+        else:        
+            raise web.seeother("/p/"+postData["permalink"])
         
+class viewpost:
+    def GET(self):
+        if web.ctx.path[len(web.ctx.path)-1] == "/":
+            requestedPost = web.ctx.path[3:web.ctx.path.index("/", 3)]
+        else:
+            requestedPost = web.ctx.path[3:]
+        renderArgs = posts.getPost(requestedPost)
+        return render.viewpost(renderArgs)
         
 class userpage:
     def GET(self):
@@ -122,11 +133,11 @@ class userpage:
         renderArgs["posts"] = None
         renderArgs["username"] = getUsername()
         return render.userpage(renderArgs)
-        
+
 #main
 if __name__ == "__main__":
     #ensures usernames are unique, if index already exists then no-op
-    database.users.create_index([("username", pymongo.ASCENDING)], unique=True)
+    database.users.create_index([("lowerUsername", pymongo.ASCENDING)], unique=True)
     #puts a lifespan on stored sessions so they're automatically purged from the database after the set lifespan
     database.sessions.create_index([("creationDate", pymongo.ASCENDING)], expireAfterSeconds = cookieLifespan)
     app.run()

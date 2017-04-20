@@ -3,7 +3,7 @@
 <html>
 
 <head>
-<!--    <link rel="stylesheet" type="text/css" href="static/stylesheets/default.css">-->
+    <link rel="stylesheet" type="text/css" href="static/stylesheets/default.css">
     {%if userExists == True %}
     <title>Posts by {{requestedUser}}</title>
     {% else %}
@@ -24,18 +24,13 @@
         <br>
     {% endif %}
     
-    {% if userExists == False %}
-        That user doesn't exist.
-    {% elif posts != None %}
-        {{requestedUser}}'s most recent posts:
-            <p>
-            {% for post in myposts %}
-            {% endfor %}
-    {% else %}
-        {{requestedUser}} hasn't posted anything yet.
-            <p>
-            <ul>
-            </ul>
+    {% if title is not None %}
+        <h2>{{title}}</h2> by {{author}} on {{date}}
+        <br>
+        <textarea name="body" cols="120" rows="20">{{body}}</textarea>
+        <br>
+        Tags: {% for tag in tags %} {{tag}}, {% endfor %}
+        
     {% endif %}
 </body>
 
