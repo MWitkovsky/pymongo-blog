@@ -25,7 +25,7 @@ class PostHandler:
         strippedTagsList = []
         for tag in tagsList:
             tag = tag.strip()
-            strippedTagsList.append(tag)
+            strippedTagsList.append(tag.lower())
         
         #build the post object
         post = {"author" : author,
@@ -144,7 +144,7 @@ class PostHandler:
     def getMostRecentPostsByTag(self, tag, amount):
         posts = None
         try:
-            posts = self.posts.find({"tags":tag})
+            posts = self.posts.find({"tags":tag.lower()})
             posts.sort([("date", pymongo.DESCENDING)])
             posts.limit(amount)
         except:

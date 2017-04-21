@@ -49,7 +49,7 @@
     {% endif %}
     
     {% if posts %}
-        Most recent posts:<br>
+        <h1>Most recent posts:</h1>
             {% for post in posts %}
                 <h2>{{post["title"]}}</h2> by <a href="/u/{{post['author']}}">{{post["author"]}}</a> on <a href="/p/{{post['_id']}}">{{post["date"]}}</a><br>
                 {% if post["edited"] %}

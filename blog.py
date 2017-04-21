@@ -40,6 +40,9 @@ cookieLifespan = 86400
 #helper functions
 def getUsername():
     return sessions.validateSession(web.cookies().get('session'))
+
+def notFound():
+    raise web.seeother("/")
         
 #web.py webpage classes
 class index:
@@ -256,4 +259,5 @@ if __name__ == "__main__":
     database.posts.create_index([("author", pymongo.ASCENDING)])
     database.posts.create_index([("tags", pymongo.ASCENDING)])
     database.posts.create_index([("date", pymongo.ASCENDING)])
+    app.notfound = notFound
     app.run()
