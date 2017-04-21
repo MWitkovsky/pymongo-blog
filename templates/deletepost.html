@@ -18,11 +18,15 @@
         <br>
     {% endif %}
     <h2>Delete Post</h2>
-    Are you sure you want to delete this post?<br>
-    <form>
-        <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=True" value="True">Yes</button> 
-        <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=False" value="False">No</button> 
-    </form>
+    {% if not delete_success %}
+        Are you sure you want to delete this post?<br>
+        <form>
+            <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=True" value="True">Yes</button> 
+            <button type="submit" formmethod="post" formaction="/p/del/{{_id}}?response=False" value="False">No</button> 
+        </form>
+    {% else %}
+        {{delete_success}}
+    {% endif %}
 </body>
 
 </html>

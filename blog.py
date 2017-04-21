@@ -44,7 +44,7 @@ def getUsername():
 #web.py webpage classes
 class index:
     def GET(self):
-        return render.index(username = getUsername())
+        return render.index(username = getUsername(), posts = posts.getMostRecentPosts(10))
     
 class signup:
     def GET(self):
@@ -104,7 +104,7 @@ class newpost:
         i = web.input()
         username = getUsername()
         if username is None:
-            return render.index(session_error = "Your session has timed out. Please log back in to make a post.")
+            raise web.seeother("/")
         postData = posts.createPost(username, i.title, i.body, i.tags)
         if postData["errors"]:
             renderArgs = {"username" : username, 
@@ -119,7 +119,7 @@ class newpost:
 class viewpost:
     def GET(self):
         if len(web.ctx.path) <= 3:
-             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+             raise web.seeother("/")
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[3:web.ctx.path.index("/", 3)]
@@ -130,12 +130,12 @@ class viewpost:
             renderArgs["username"] = getUsername()
             return render.viewpost(renderArgs)
         else:
-            return render.index(session_error = "That post doesn't exist.", username = getUsername())
+            raise web.seeother("/")
     
 class editpost:
     def GET(self):
         if len(web.ctx.path) <= 8:
-             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+             raise web.seeother("/")
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
@@ -152,7 +152,7 @@ class editpost:
     def POST(self):
         i = web.input()
         if len(web.ctx.path) <= 8:
-             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+             raise web.seeother("/")
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[8:web.ctx.path.index("/", 8)]
@@ -161,7 +161,7 @@ class editpost:
             
         username = getUsername()
         if username is None:
-            return render.index(session_error = "Your session has timed out. Please log back in to edit your post.")
+            raise web.seeother("/")
         postData = posts.editPost(requestedPost, i.title, i.body, i.tags)
         if postData["errors"]:
             renderArgs = posts.getPost(requestedPost)
@@ -176,7 +176,7 @@ class editpost:
 class deletepost:
     def GET(self):
         if len(web.ctx.path) <= 7:
-             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+             raise web.seeother("/")
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
@@ -185,17 +185,17 @@ class deletepost:
         username = getUsername()
         post = posts.getPost(requestedPost)
         if not post:
-            return render.index(session_error = "That post doesn't exist.", username = username)
+            raise web.seeother("/p/"+requestedPost)
         elif username is None:
-            return render.index(session_error = "Your session has timed out. Please log back in to delete your post.", username = username)
+            raise web.seeother("/p/"+requestedPost)
         elif username != post["author"]:
-            return render.index(session_error = "You do not have permission to do that.", username = username)
+            raise web.seeother("/p/"+requestedPost)
         return render.deletepost(username = username, _id = requestedPost)
     
     def POST(self):
         i = web.input()
         if len(web.ctx.path) <= 7:
-             return render.index(session_error = "That post doesn't exist.", username = getUsername())
+             raise web.seeother("/p/"+requestedPost)
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedPost = web.ctx.path[7:web.ctx.path.index("/", 7)]
@@ -203,14 +203,14 @@ class deletepost:
             requestedPost = web.ctx.path[7:]
         username = getUsername()
         if username is None:
-            return render.index(session_error = "Your session has timed out. Please log back in to delete your post.", username = username)
+            raise web.seeother("/p/"+requestedPost)
        
         elif username != posts.getPost(requestedPost)["author"]:
-            return render.index(session_error = "You do not have permission to do that.", username = username)
+            raise web.seeother("/p/"+requestedPost)
         
         if i.response == "True":
             posts.deletePost(requestedPost)
-            return render.index(session_error = "Post deleted.", username = username)
+            return render.deletepost(delete_success = "Post deleted.", username = username)
         elif i.response == "False":
             raise web.seeother("/p/"+requestedPost)
         
@@ -218,7 +218,7 @@ class deletepost:
 class viewtag:
     def GET(self):
         if len(web.ctx.path) <= 3:
-             return render.index(username = getUsername())
+             raise web.seeother("/")
             
         if web.ctx.path[len(web.ctx.path)-1] == "/":
             requestedTag = web.ctx.path[3:web.ctx.path.index("/", 3)]

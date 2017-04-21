@@ -106,17 +106,18 @@ class PostHandler:
     def getMostRecentPosts(self, amount):
         posts = None
         try:
-            posts = self.posts.find("date", pymongo.DESCENDING)
+            posts = self.posts.find()
             posts.limit(amount)
         except:
             print "Unknown error while attempting to get most recent posts" 
             
         postsToReturn = []
-        for post in posts:
-            post["date"] = post["date"].strftime("%m/%d/%y at %I:%M%p")
-            if "comments" not in post:
-                post["comments"] = []
-            postsToReturn.append(post)
+        if posts is not None:
+            for post in posts:
+                post["date"] = post["date"].strftime("%m/%d/%y at %I:%M%p")
+                if "comments" not in post:
+                    post["comments"] = []
+                postsToReturn.append(post)
         
         return postsToReturn
     
